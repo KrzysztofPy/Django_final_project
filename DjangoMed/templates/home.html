@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title  %} HOMEPAGE {% endblock %}
+{% block content  %} You are on the home page </br>
+
+<a href="appointments/list/">List all free appointments</a> </br>
+<a href="appointments/search/">Search free appointments</a> </br>
+
+<form>
+    {{ form.as_p }}
+    <input type="submit" value="add">
+</form>
+
+{% endblock %}

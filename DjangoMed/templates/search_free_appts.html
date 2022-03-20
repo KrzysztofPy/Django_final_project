@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title  %} Search appointments {% endblock %}
+{% block content  %} Search all appointments that are available:
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="search">
+    </form>
+
+    {% if search_query %}
+        You were looking for appointments at: {{ search_query }}
+        {% for appointment in appointments %}
+            <p>
+                {{ appointment }}
+                <a href="details/{{ appointment.id }}">details</a>
+            </p>
+        {% empty %}
+            <p>No records found</p>
+        {% endfor %}
+    {% endif %}
+
+    {% if error_message %}
+        {{ error_message }}
+    {% endif %}
+
+{% endblock %}

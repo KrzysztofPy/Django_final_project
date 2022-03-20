@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title  %} List appointments {% endblock %}
+{% block content  %} Details of appointment:
+    <form action="{% url 'appointment_app:details_appointment' appt_detail.id %}" method="post">
+        Date: {{ appt_detail.date }}, </br>
+        time: {{ appt_detail.time }}, </br>
+        duration: {{ appt_detail.duration }} </br>
+
+        <p>
+            Book this visit?
+            <button type="submit" name="book_yes" value="book_me">YES</button>
+        </p>
+
+        <button type="submit" name="search_new" value="search">Search new</button>
+
+        {% csrf_token %}
+    </form>
+{% endblock %}

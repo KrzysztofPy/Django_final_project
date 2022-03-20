@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title  %} {% endblock %}</title>
+</head>
+    {% if request.user.is_authenticated %}
+      Logged In as: {{ request.user.username }} |
+     <a href="{% url 'appointment_app:logout' %}">
+       Logout
+     </a> </br>
+    {% else %}
+      <a href="{% url 'appointment_app:login' %}">
+        Login
+      </a> </br>
+    {% endif %}
+
+    {% block content  %} {% endblock %}
+</body>
+<!--
+<footer>
+    Today is {{ now }}.</br>
+    Application version: {{ version }} </br>
+    {% load static %}
+        <img src="{% static "djangoMED.jpeg" %}" alt="DjangoMed_image">
+</footer> -->
+</html>
