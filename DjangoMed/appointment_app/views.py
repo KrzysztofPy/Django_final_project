@@ -4,9 +4,11 @@ from django.views.generic import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
+from django.contrib import messages
+
 from appointment_app.models import Patient, Appointment
 
-from appointment_app.forms import AppSearchForm, LoginForm
+from appointment_app.forms import AppSearchForm, LoginForm, AppAddForm
 
 
 class HomeView(View):
@@ -38,6 +40,19 @@ class LoginView(View):
 def log_out(request):
     logout(request)
     return redirect("appointment_app:home")
+
+
+class AppAddView(View):
+    def get(self, request):
+        form = AppAddForm()
+        return render(request, "add_appointments.html", {"form":form})
+
+    def post(self, request):
+        form = AppAddForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Appointment added")
+        return redirect("appointment_app:add_appointment")
 
 
 class AppFreeListView(View):
@@ -81,10 +96,27 @@ class AppDetailsView(View):
 
     #receiving data from form
     def post(self, request, appointment_id):
+        #mapping buttons values to variables. Pressed button will change value from None to book_me or search
         book_visit_yes = request.POST.get('book_yes')
         search_again = request.POST.get('search_new')
-        #if the user pushed the button to book visit then database change
-        if book_visit_yes == 'book_me':
+        #if the user is logged in and pushed the button to book visit then database change
+        if book_visit_yes == 'book_me' and request.user.id is not None:
             appt = Appointment.objects.get(pk=appointment_id)
-            #appt.user
-        return HttpResponse(f'{appointment_id}, {book_visit_yes}, {search_again}')
+            appt.user_id = request.user.id
+            appt.save()
+            return redirect("appointment_app:booked_appointment")
+        #if the user is not logged in then redirect to login page
+        else:
+            return redirect("appointment_app:login")
+        #if the search button is pressed then redirect to search_appointment page
+        if search_again == 'search':
+            return redirect("appointment_app:search_appointments")
+
+        return HttpResponse(f'Error occurred!')
+
+
+class AppBookedView(View):
+    def get(self, request):
+        appt_user = Appointment.objects.filter(user_id=request.user.id)
+        return render(request, "booked_appointments.html", {'appointments': appt_user,
+                                                            'user': request.user})

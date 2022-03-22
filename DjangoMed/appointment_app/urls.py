@@ -1,6 +1,6 @@
 from django.urls import path
 from appointment_app.views import LoginView, log_out, \
-    HomeView, AppFreeListView, AppSearchView, AppDetailsView
+    HomeView, AppFreeListView, AppSearchView, AppDetailsView, AppBookedView, AppAddView
 
 app_name = "appointment_app"
 
@@ -11,4 +11,6 @@ urlpatterns = [
     path('appointments/list/', AppFreeListView.as_view(), name='available_appointments'),
     path('appointments/search/', AppSearchView.as_view(), name='search_appointments'),
     path('appointments/search/details/<int:appointment_id>', AppDetailsView.as_view(), name='details_appointment'),
+    path('appointments/booked/', AppBookedView.as_view(), name='booked_appointment'),
+    path('appointments/add/', AppAddView.as_view(), name='add_appointment'),
 ]

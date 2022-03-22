@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title  %} List appointments {% endblock %}
+{% block content  %} List of all booked appointments for {{ user.username }}:
+    <ul>
+    {% for appointment in appointments %}
+        <li>
+            Date: {{ appointment.date }}
+            time: {{ appointment.time }}
+            duration: {{ appointment.duration }}
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock %}
