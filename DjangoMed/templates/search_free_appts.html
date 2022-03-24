@@ -1,15 +1,18 @@
 {% extends 'base.html' %}
 
 {% block title  %} Search appointments {% endblock %}
-{% block content  %} Search all appointments that are available:
-    <form action="" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="search">
-    </form>
+{% block content  %}
+    {% if not search_query_from %}
+        Search all appointments that are available:
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="search">
+        </form>
+    {% endif %}
 
-    {% if search_query %}
-        You were looking for appointments at: {{ search_query }}
+    {% if search_query_from and search_query_to %}
+        You were looking for appointments from: {{ search_query_from }}, to: {{ search_query_to }}
         {% for appointment in appointments %}
             <p>
                 {{ appointment }}
@@ -17,6 +20,7 @@
             </p>
         {% empty %}
             <p>No available appointments found</p>
+            <a href="{% url "appointment_app:search_appointments" %}">Search again</a>
         {% endfor %}
     {% endif %}
 

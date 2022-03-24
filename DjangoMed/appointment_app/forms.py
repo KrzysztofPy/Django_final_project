@@ -14,16 +14,17 @@ class LoginForm(AuthenticationForm):
 
 HOURS = (
     (0, "08"),
-    (0, "09"),
-    (0, "10"),
-    (0, "11"),
-    (0, "12")
+    (1, "09"),
+    (2, "10"),
+    (3, "11"),
+    (4, "12")
 )
 MINUTES = (
     (0, '00'),
-    (0, '20'),
-    (0, '40')
+    (1, '20'),
+    (2, '40')
 )
+
 #form to add new appointment
 class AppAddForm(forms.Form):
     date = forms.DateField(widget=forms.SelectDateWidget, initial=datetime.date.today)
@@ -36,5 +37,6 @@ class AppAddForm(forms.Form):
 
 #form to search for free appointments for given date
 class AppSearchForm(forms.Form):
-    date = forms.DateField(widget=forms.SelectDateWidget)
+    date_from = forms.DateField(widget=forms.SelectDateWidget, initial=datetime.date.today)
+    date_to = forms.DateField(widget=forms.SelectDateWidget, initial=datetime.date.today)
 

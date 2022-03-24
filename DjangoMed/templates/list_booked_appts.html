@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title  %} List appointments {% endblock %}
+{% block content  %} List of all appointments that are booked:
+    <ul>
+    {% for appointment in bappts %}
+        <li>
+            Date: {{ appointment.date }}, time: {{ appointment.time }}, duration: {{ appointment.duration }}
+            <a href="{% url 'appointment_app:details_appointment' appointment.id %}">details</a>
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock %}

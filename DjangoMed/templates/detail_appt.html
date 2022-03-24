@@ -7,10 +7,16 @@
         time: {{ appt_detail.time }}, </br>
         duration: {{ appt_detail.duration }} </br>
 
-        <p>
+        {% if appt_detail.user_id == request.user.id and request.user.it != None %}
+            <p>
+                <button type="submit" name="cancel" value="cancel_me">Cancel visit</button>
+            </p>
+        {% else %}
+            <p>
             Book this visit?
             <button type="submit" name="book_yes" value="book_me">YES</button>
-        </p>
+            </p>
+        {% endif %}
 
         <button type="submit" name="search_new" value="search">Search new</button>
 

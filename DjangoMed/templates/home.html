@@ -3,13 +3,12 @@
 {% block title  %} HOMEPAGE {% endblock %}
 {% block content  %} You are on the home page </br>
 
-<a href="appointments/list/">List all free appointments</a> </br>
-<a href="appointments/search/">Search free appointments</a> </br>
-<a href="appointments/add/">Add new appointment</a> </br>
-
-<form>
-    {{ form.as_p }}
-    <input type="submit" value="add">
-</form>
+    <a href="appointments/search/">Search free appointments</a> </br>
+    <a href="appointments/booked/list/">List your booked appointments</a> </br>
+    </br>
+    <a href="appointments/list/">List all free appointments</a> </br>
+    <a href="appointments/booked/all/">List all booked appointments</a> </br>
+    </br>
+    <a href="appointments/add/">Add new appointment</a> </br>
 
 {% endblock %}

@@ -1,0 +1,9 @@
+<div>
+    {% block messages %}
+        {% if messages %}
+            {% for message in messages %}
+                {{ message|safe }}
+            {% endfor %}
+        {% endif %}
+    {% endblock %}
+</div>
