@@ -1,14 +1,12 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.views.generic import View
 
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+#from django.contrib.auth.decorators import login_required
 
 from django.contrib import messages
 
-from appointment_app.models import Patient, Appointment
-
-from appointment_app.forms import AppSearchForm, LoginForm, AppAddForm, HOURS, MINUTES
+from appointment_app.models import Patient, Appointment, PHYSICIAN_SPECIALITIES, PLACES
+from appointment_app.forms import AppSearchForm,  AppAddForm, HOURS, MINUTES
 
 import datetime
 
@@ -16,32 +14,6 @@ import datetime
 class HomeView(View):
     def get(self, request):
         return render(request, "home.html")
-
-
-class LoginView(View):
-    template_name = "login.html"
-
-    def get(self, request):
-        return render(request, self.template_name, {"form": LoginForm})
-
-    def post(self, request):
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-        if user:
-            login(request, user)
-
-            next_url = request.GET.get("next")
-            if next_url:
-                return redirect(next_url)
-            return redirect("appointment_app:home")
-        return render(request, self.template_name, {"form": LoginForm(request.POST)})
-
-
-@login_required
-def log_out(request):
-    logout(request)
-    return redirect("appointment_app:home")
 
 
 class AppAddView(View):
@@ -73,7 +45,7 @@ class AppFreeListView(View):
 
 class AppBookedListView(View):
     def get(self, request):
-        booked_appts = Appointment.objects.filter(user=request.user.id)
+        booked_appts = Appointment.objects.filter(user=request.user.pk)
         return render(request, 'list_booked_appts.html', {'bappts': booked_appts})
 
 
@@ -88,7 +60,11 @@ class AppSearchView(View):
         if form.is_valid():
             search_query_from = form.cleaned_data['date_from']
             search_query_to = form.cleaned_data['date_to']
+            doc_speciality = form.cleaned_data['doctor_speciality']
+            place = form.cleaned_data['place']
+            print(f"{doc_speciality}, {place}")
             appts = Appointment.objects.filter(date__range=[search_query_from, search_query_to]).filter(user=None).order_by('date')
+
             context['search_query_from'] = search_query_from
             context['search_query_to'] = search_query_to
             context['appointments'] = appts
@@ -123,7 +99,7 @@ class AppDetailsView(View):
         #if the user is not logged in then redirect to login page
         elif book_visit_yes == 'book_me' and request.user.id is None:
             messages.success(request, "You need to be logged in to book visits")
-            return redirect("appointment_app:login")
+            return redirect("login_app:login")
         #if the search button is pressed then redirect to search_appointment page
         elif search_again == 'search':
             return redirect("appointment_app:search_appointments")

@@ -1,14 +1,11 @@
 from django.urls import path
-from appointment_app.views import LoginView, log_out, \
-    HomeView, AppFreeListView, AppBookedListView, AppSearchView, AppDetailsView, \
-    AppBookedView, AppAddView
+from appointment_app.views import HomeView, AppFreeListView, AppBookedListView, \
+    AppSearchView, AppDetailsView, AppBookedView, AppAddView
 
 app_name = "appointment_app"
 
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
-    path('login', LoginView.as_view(), name="login"),
-    path('logout', log_out, name="logout"),
     path('appointments/list/', AppFreeListView.as_view(), name='available_appointments'),
     path('appointments/booked/list/', AppBookedListView.as_view(), name='booked_appointments'),
     path('appointments/search/', AppSearchView.as_view(), name='search_appointments'),

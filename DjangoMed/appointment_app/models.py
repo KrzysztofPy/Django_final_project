@@ -18,15 +18,16 @@ PLACES = (
     (3, "DjangoMED_4")
 )
 
-"""
+
 class Place(models.Model):
     name = models.CharField(max_length=32)
     address = models.CharField(max_length=32)
 
     def __str__(self):
         return self.name
-"""
 
+
+"""
 ROOM_NAMES = (
     (0, "1A"),
     (1, "2A"),
@@ -38,7 +39,7 @@ ROOM_NAMES = (
     (7, "4B")
 )
 
-"""
+
 class Room(models.Model):
     name = models.CharField(max_length=10)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
@@ -46,27 +47,30 @@ class Room(models.Model):
     def __str__(self):
         return self.name
 """
-"""
+
 PHYSICIAN_SPECIALITIES = (
-    (0, "Internal medicine"),
-    (1, "Pediatrician"),
-    (2, "Family medicine"),
-    (3, "Dermatologist"),
-    (4, "Cardiologist"),
-    (5, "Endocrinologist"),
-    (6, "Gastroenterologist"),
-    (7, "Neurologist"),
-    (8, "Urologist")
-)
+        (-1, "---"),
+        (0, "Internal medicine"),
+        (1, "Pediatrician"),
+        (2, "Family medicine"),
+        (3, "Dermatologist"),
+        (4, "Cardiologist"),
+        (5, "Endocrinologist"),
+        (6, "Gastroenterologist"),
+        (7, "Neurologist"),
+        (8, "Urologist"),
+        (9, "Radiologist"),
+        (10, "Orthopaedist")
+    )
 
 
 class PhysicianSpeciality(models.Model):
-    name = models.CharField(max_length=64)
+    speciality = models.IntegerField(choices=PHYSICIAN_SPECIALITIES)
     description = models.TextField()
 
     def __str__(self):
-        return self.name
-"""
+        return PHYSICIAN_SPECIALITIES[self.speciality][1]
+
 
 RATE = (
     (0, "*"),
@@ -76,17 +80,18 @@ RATE = (
     (4, "*****")
 )
 
-"""
+
 class Doctor(models.Model):
     name = models.CharField(max_length=64)
     surname = models.CharField(max_length=64)
-    rating = models.IntegerField(choices=RATE)
+    rating = models.IntegerField(choices=RATE, null=True, blank=True)
     speciality = models.ManyToManyField(PhysicianSpeciality)
     places = models.ManyToManyField(Place)
 
     def __str__(self):
-        return self.name
-"""
+        return f"Doctor {self.name[0]} {self.surname}"
+
+
 """
 class Notification(models.Model):
     start_date = models.DateTimeField
@@ -99,12 +104,13 @@ class Notification(models.Model):
         return f"{self.start_date} visit with {self.doctor}"
 """
 
+
 class Appointment(models.Model):
     date = models.DateField()
     time = models.TimeField()
     duration = models.CharField(max_length=24, default='0:20 minutes')
-    #place = models.ForeignKey(Place, on_delete=models.CASCADE)
-    #doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     user = models.ForeignKey(Patient, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):

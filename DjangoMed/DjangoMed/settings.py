@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
 MY_APPS = [
     'appointment_app',
+    'login'
 ]
 
 INSTALLED_APPS += MY_APPS
