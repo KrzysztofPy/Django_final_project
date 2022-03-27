@@ -49,18 +49,18 @@ class Room(models.Model):
 """
 
 PHYSICIAN_SPECIALITIES = (
-        (-1, "---"),
-        (0, "Internal medicine"),
-        (1, "Pediatrician"),
-        (2, "Family medicine"),
-        (3, "Dermatologist"),
-        (4, "Cardiologist"),
-        (5, "Endocrinologist"),
-        (6, "Gastroenterologist"),
-        (7, "Neurologist"),
-        (8, "Urologist"),
-        (9, "Radiologist"),
-        (10, "Orthopaedist")
+        (0, "---"),
+        (1, "Internal medicine"),
+        (2, "Pediatrician"),
+        (3, "Family medicine"),
+        (4, "Dermatologist"),
+        (5, "Cardiologist"),
+        (6, "Endocrinologist"),
+        (7, "Gastroenterologist"),
+        (8, "Neurologist"),
+        (9, "Urologist"),
+        (10, "Radiologist"),
+        (11, "Orthopaedist")
     )
 
 

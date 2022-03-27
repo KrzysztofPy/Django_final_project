@@ -5,7 +5,15 @@
     <ul>
     {% for appointment in fappts %}
         <li>
-            Date: {{ appointment.date }}, time: {{ appointment.time }}, duration: {{ appointment.duration }}
+            Date: {{ appointment.date }},
+            time: {{ appointment.time }},
+            duration: {{ appointment.duration }},
+            Doctor: {{ appointment.doctor.name }} {{ appointment.doctor.surname }},
+            speciality:
+            {% for speciality in appointment.doctor.speciality.all  %}
+                {{ speciality }}
+            {% endfor %}
+            place: {{ appointment.place.name }} at {{ appointment.place.address }}
             <a href="{% url 'appointment_app:details_appointment' appointment.id %}">details</a>
         </li>
     {% endfor %}

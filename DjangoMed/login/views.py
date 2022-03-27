@@ -10,7 +10,7 @@ from login.forms import LoginForm
 
 
 class LoginView(View):
-    template_name = "login.html"
+    template_name = "Login/login.html"
 
     def get(self, request):
         return render(request, self.template_name, {"form": LoginForm})

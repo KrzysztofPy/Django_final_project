@@ -22,11 +22,15 @@ MINUTES = (
 
 
 def get_places(places_model):
+    """This function gets the Place model and creates a tuple of tuples ((0, '---'), (1, 'place.name'), ...)"""
     all_places = places_model.objects.all()
     ALL_PLACES = [(0, "---")]
     for place in all_places:
         ALL_PLACES.append((place.pk, place.name))
     return tuple(ALL_PLACES)
+
+
+ALL_PLACES = get_places(Place)
 
 
 def get_doctors(doctors_model):
@@ -52,5 +56,5 @@ class AppSearchForm(forms.Form):
     date_from = forms.DateField(widget=forms.SelectDateWidget, initial=datetime.date.today)
     date_to = forms.DateField(widget=forms.SelectDateWidget, initial=datetime.date.today)
     doctor_speciality = forms.ChoiceField(choices=PHYSICIAN_SPECIALITIES)
-    place = forms.ChoiceField(choices=get_places(Place))
+    place = forms.ChoiceField(choices=ALL_PLACES)
 

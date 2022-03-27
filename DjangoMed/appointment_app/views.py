@@ -1,14 +1,20 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.views.generic import View
 
-#from django.contrib.auth.decorators import login_required
-
 from django.contrib import messages
 
-from appointment_app.models import Patient, Appointment, PHYSICIAN_SPECIALITIES, PLACES
-from appointment_app.forms import AppSearchForm,  AppAddForm, HOURS, MINUTES
+from appointment_app.models import Patient, Doctor, Place, Appointment, PHYSICIAN_SPECIALITIES, PLACES
+from appointment_app.forms import AppSearchForm, AppAddForm, ALL_PLACES, HOURS, MINUTES
 
 import datetime
+
+#
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    UserPassesTestMixin,
+    PermissionDenied
+)
 
 
 class HomeView(View):
@@ -43,7 +49,10 @@ class AppFreeListView(View):
         return render(request, 'list_free_appts.html', context)
 
 
-class AppBookedListView(View):
+#lists all booked appointments
+class AppBookedListView(LoginRequiredMixin, View):
+    #LOGIN_URL = 'login_app:login' in settings.py
+
     def get(self, request):
         booked_appts = Appointment.objects.filter(user=request.user.pk)
         return render(request, 'list_booked_appts.html', {'bappts': booked_appts})
@@ -60,10 +69,16 @@ class AppSearchView(View):
         if form.is_valid():
             search_query_from = form.cleaned_data['date_from']
             search_query_to = form.cleaned_data['date_to']
-            doc_speciality = form.cleaned_data['doctor_speciality']
-            place = form.cleaned_data['place']
-            print(f"{doc_speciality}, {place}")
-            appts = Appointment.objects.filter(date__range=[search_query_from, search_query_to]).filter(user=None).order_by('date')
+            doc_speciality = PHYSICIAN_SPECIALITIES[int(form.cleaned_data['doctor_speciality'])][0]
+            place_of_visit = ALL_PLACES[int(form.cleaned_data['place'])][1]
+            print(f"{doc_speciality}, {place_of_visit}")
+            query_filter = {
+                'date__range': [search_query_from, search_query_to],
+                'user': None,
+                #'doctor': Doctor.objects.get(speciality=doc_speciality),
+                #'place': Place.objects.get(name=place_of_visit)
+            }
+            appts = Appointment.objects.filter(**query_filter).order_by('date')
 
             context['search_query_from'] = search_query_from
             context['search_query_to'] = search_query_to
