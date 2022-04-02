@@ -7,6 +7,7 @@
     {% if request.user.is_authenticated %}
       Logged In as: {{ request.user.username }}
         <a href="{% url 'login_app:logout' %}">| Logout |</a>
+        <a href="{% url 'rotation:home' %}">| SWAP |</a>
     {% else %}
         <a href="{% url 'login_app:login' %}">| Login |</a>
     {% endif %}

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
 MY_APPS = [
     'appointment_app',
+    'rotation',
     'login'
 ]
 

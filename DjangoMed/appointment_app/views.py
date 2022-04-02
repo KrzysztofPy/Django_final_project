@@ -80,7 +80,6 @@ class AppSearchView(View):
 
     def post(self, request):
         form = AppSearchForm(request.POST)
-        #doctors = Doctor.objects.all()
         context = {}
         if form.is_valid():
             search_query_from = form.cleaned_data['date_from']

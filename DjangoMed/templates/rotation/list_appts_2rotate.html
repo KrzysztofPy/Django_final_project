@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title  %} ROTATION {% endblock %}
+{% block content  %}
+     {% include "./../message.html" %} </br>
+     <form action="" method="post">
+        List of your appointments that can be swapped:
+        <ul>
+        {% for appointment in bappts %}
+            <li>
+                Date: {{ appointment.date }}, time: {{ appointment.time }}, duration: {{ appointment.duration }},
+                Physician: {{ appointment.doctor }},
+                {% for speciality in appointment.doctor.speciality.all %}
+                    {{ speciality }}
+                {% endfor %}
+                <a href="{% url 'appointment_app:details_appointment' appointment.id %}">details</a>
+                <button type="submit" name="swap" value="swap_me_{{ appointment.id }}">Swap</button>
+            </li>
+            {% empty %}
+                You have no booked appointments.
+        {% endfor %}
+        </ul>
+
+        List of appointments you wanted to swap:
+        <ul>
+        {% for rotation in rappts %}
+            <li>
+                Date: {{ rotation.appointment_2rotate.date }}, time: {{ rotation.appointment_2rotate.time }}, duration: {{ rotation.appointment_2rotate.duration }},
+                Physician: {{ rotation.appointment_2rotate.doctor }},
+                {% for speciality in rotation.appointment_2rotate.doctor.speciality.all %}
+                    {{ speciality }}
+                {% endfor %}
+                <a href="{% url 'appointment_app:details_appointment' rotation.appointment_2rotate.id %}">details</a>
+                <button type="submit" name="demote" value="demote_me_{{ rotation.appointment_2rotate_id }}">Demote swap</button>
+            </li>
+            {% empty %}
+                You have no appointments that you wanted to swap.
+        {% endfor %}
+        </ul>
+
+        {% csrf_token %}
+     </form>
+
+{% endblock %}

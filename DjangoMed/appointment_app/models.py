@@ -96,7 +96,7 @@ class Doctor(models.Model):
             return f"No rating yet"
 
     def __str__(self):
-        return f"Doc. {self.name[0]} {self.surname}"
+        return f"Doc. {self.name[0]}. {self.surname}"
 
 
 """
