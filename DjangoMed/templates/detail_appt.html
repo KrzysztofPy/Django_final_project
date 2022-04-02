@@ -5,9 +5,13 @@
     <form action="{% url 'appointment_app:details_appointment' appt_detail.id %}" method="post">
         Date: {{ appt_detail.date }}, </br>
         time: {{ appt_detail.time }}, </br>
-        duration: {{ appt_detail.duration }} </br>
+        duration: {{ appt_detail.duration }}, </br>
+        physician: {{ appt_detail.doctor }}, </br>
+        physician rating: {{ appt_detail.doctor.get_rating }}, </br>
+        place: {{ appt_detail.place }} </br>
+        room: {{ appt_detail.place.room_name }} <br>
 
-        {% if appt_detail.user_id == request.user.id and request.user.it != None %}
+        {% if appt_detail.user_id == request.user.id and request.user.id != None %}
             <p>
                 <button type="submit" name="cancel" value="cancel_me">Cancel visit</button>
             </p>

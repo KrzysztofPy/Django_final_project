@@ -10,6 +10,26 @@ class Patient(models.Model):
     def __str__(self):
         return str(self.number)
 
+"""
+ROOM_NAMES = (
+    (0, "---"),
+    (1, "1A"),
+    (2, "2A"),
+    (3, "3A"),
+    (4, "4A"),
+    (5, "1B"),
+    (6, "2B"),
+    (7, "3B"),
+    (8, "4B")
+)
+
+
+class Room(models.Model):
+    room_name = models.IntegerField(choices=ROOM_NAMES)
+
+    def __str__(self):
+        return ROOM_NAMES[self.room_name][1]
+"""
 
 PLACES = (
     (0, "DjangoMED_1"),
@@ -22,31 +42,11 @@ PLACES = (
 class Place(models.Model):
     name = models.CharField(max_length=32)
     address = models.CharField(max_length=32)
+    #room = models.ForeignKey(Room, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
 
-
-"""
-ROOM_NAMES = (
-    (0, "1A"),
-    (1, "2A"),
-    (2, "3A"),
-    (3, "4A"),
-    (4, "1B"),
-    (5, "2B"),
-    (6, "3B"),
-    (7, "4B")
-)
-
-
-class Room(models.Model):
-    name = models.CharField(max_length=10)
-    place = models.ForeignKey(Place, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-"""
 
 PHYSICIAN_SPECIALITIES = (
         (0, "---"),
@@ -65,11 +65,11 @@ PHYSICIAN_SPECIALITIES = (
 
 
 class PhysicianSpeciality(models.Model):
-    speciality = models.IntegerField(choices=PHYSICIAN_SPECIALITIES)
+    specialities = models.IntegerField(choices=PHYSICIAN_SPECIALITIES)
     description = models.TextField()
 
     def __str__(self):
-        return PHYSICIAN_SPECIALITIES[self.speciality][1]
+        return PHYSICIAN_SPECIALITIES[self.specialities][1]
 
 
 RATE = (
@@ -88,20 +88,19 @@ class Doctor(models.Model):
     speciality = models.ManyToManyField(PhysicianSpeciality)
     places = models.ManyToManyField(Place)
 
+    @property
+    def get_rating(self):
+        if self.rating:
+            return str(RATE[self.rating][1])
+        else:
+            return f"No rating yet"
+
     def __str__(self):
-        return f"Doctor {self.name[0]} {self.surname}"
+        return f"Doc. {self.name[0]} {self.surname}"
 
 
 """
-class Notification(models.Model):
-    start_date = models.DateTimeField
-    end_date = models.DateTimeField
-    place = models.ManyToManyField(Place)
-    doctor = models.ForeignKey(Doctor, null=True, on_delete=models.CASCADE)
-    user = models.ForeignKey(Patient, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f"{self.start_date} visit with {self.doctor}"
 """
 
 
@@ -110,9 +109,24 @@ class Appointment(models.Model):
     time = models.TimeField()
     duration = models.CharField(max_length=24, default='0:20 minutes')
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    #room = models.ForeignKey(Room, on_delete=models.CASCADE, blank=True, null=True)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     user = models.ForeignKey(Patient, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return f"Appointment: {self.date} at {self.time}"
 
+
+
+
+"""
+class Notification(models.Model):
+    visit_date = models.DateTimeField
+    visit_date = models.DateTimeField
+    place = models.ManyToManyField(Place)
+    doctor = models.ForeignKey(Doctor, null=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(Patient, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.start_date} visit with {self.doctor}"
+"""

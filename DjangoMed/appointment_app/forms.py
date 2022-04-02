@@ -37,8 +37,23 @@ def get_doctors(doctors_model):
     all_doctors = doctors_model.objects.all()
     ALL_DOCTORS = [(0, "---")]
     for doctor in all_doctors:
-        ALL_DOCTORS.append((doctor.pk, doctor.name))
+        temp = [doctor.name, doctor.surname]
+        ALL_DOCTORS.append((doctor.pk, " ".join(temp)))
     return tuple(ALL_DOCTORS)
+
+
+ALL_DOCTORS = get_doctors(Doctor)
+
+
+def get_doctors_specialities(doctors_model):
+    all_specialities = doctors_model.objects.all()
+    ALL_DOCTORS_SPECIALITIES = [(0, "---")]
+    for speciality in all_specialities:
+        ALL_DOCTORS_SPECIALITIES.append((speciality.pk, speciality.speciality))
+    return tuple(ALL_DOCTORS_SPECIALITIES)
+
+
+ALL_DOCTORS_SPECIALITIES = get_doctors_specialities(Doctor)
 
 
 #form to add new appointment
@@ -47,8 +62,9 @@ class AppAddForm(forms.Form):
     time_hour = forms.ChoiceField(choices=HOURS)
     time_minute = forms.ChoiceField(choices=MINUTES)
     #duration = forms.CharField()
-    #place = forms.ForeignKey(Place)
-    #doctor = forms.ForeignKey(Doctor)
+    place = forms.ChoiceField(choices=ALL_PLACES)
+    doctor = forms.ChoiceField(choices=ALL_DOCTORS)
+    speciality = forms.ChoiceField(choices=ALL_DOCTORS_SPECIALITIES)
 
 
 #form to search for free appointments for given date

@@ -15,8 +15,18 @@
         You were looking for appointments from: {{ search_query_from }}, to: {{ search_query_to }}
         {% for appointment in appointments %}
             <p>
-                {{ appointment }}
-                <a href="details/{{ appointment.id }}">details</a>
+            {% for doc_speciality in appointment.doctor.speciality.all %}
+
+                {% if doc_speciality == speciality %}
+                    {{ appointment }},
+                    speciality: {{ speciality }},
+                    doctor: {{ appointment.doctor}},
+                    place: {{ appointment.place }}
+
+                    <a href="details/{{ appointment.id }}">details</a>
+                {% endif %}
+
+            {% endfor %}
             </p>
         {% empty %}
             <p>No available appointments found</p>

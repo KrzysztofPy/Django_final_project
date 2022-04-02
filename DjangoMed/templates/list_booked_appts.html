@@ -5,7 +5,8 @@
     <ul>
     {% for appointment in bappts %}
         <li>
-            Date: {{ appointment.date }}, time: {{ appointment.time }}, duration: {{ appointment.duration }}
+            Date: {{ appointment.date }}, time: {{ appointment.time }}, duration: {{ appointment.duration }},
+            Physician: {{ appointment.doctor }}
             <a href="{% url 'appointment_app:details_appointment' appointment.id %}">details</a>
         </li>
     {% endfor %}

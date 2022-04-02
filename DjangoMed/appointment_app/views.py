@@ -3,7 +3,7 @@ from django.views.generic import View
 
 from django.contrib import messages
 
-from appointment_app.models import Patient, Doctor, Place, Appointment, PHYSICIAN_SPECIALITIES, PLACES
+from appointment_app.models import Patient, Doctor, PhysicianSpeciality, Place, Appointment, PHYSICIAN_SPECIALITIES, RATE, PLACES
 from appointment_app.forms import AppSearchForm, AppAddForm, ALL_PLACES, HOURS, MINUTES
 
 import datetime
@@ -20,6 +20,21 @@ from django.contrib.auth.mixins import (
 class HomeView(View):
     def get(self, request):
         return render(request, "home.html")
+
+
+class ShowDoctorsView(View):
+    def get(self, request):
+        doctors = Doctor.objects.all()
+        return render(request, "show_doctors.html", {"doctors": doctors})
+
+
+class ShowSpecialitiesView(View):
+    def get(self, request):
+        specialities = PhysicianSpeciality.objects.all()
+        doctors = Doctor.objects.all()
+        return render(request, "specialities_list.html", {"specialities": specialities,
+                                                          "doctors": doctors
+                                                          })
 
 
 class AppAddView(View):
@@ -65,23 +80,38 @@ class AppSearchView(View):
 
     def post(self, request):
         form = AppSearchForm(request.POST)
+        #doctors = Doctor.objects.all()
         context = {}
         if form.is_valid():
             search_query_from = form.cleaned_data['date_from']
             search_query_to = form.cleaned_data['date_to']
             doc_speciality = PHYSICIAN_SPECIALITIES[int(form.cleaned_data['doctor_speciality'])][0]
             place_of_visit = ALL_PLACES[int(form.cleaned_data['place'])][1]
-            print(f"{doc_speciality}, {place_of_visit}")
+            #doctors = Doctor.objects.filter(speciality=doc_speciality).all()
+            doc_spec = PhysicianSpeciality.objects.get(specialities=doc_speciality)
+            doctors = doc_spec.doctor_set.all()
+            doctors_list = []
+            for doctor in doctors:
+                doctors_list.append(doctor.pk)
+            #places = Place.objects.get(name=place_of_visit)
+            #print(f"{doctors}, {places}")
+            print(f"{doctors_list}, {doctors}, {doc_spec}")
+            #searching for the visit of the given parameters: free, date, place
             query_filter = {
-                'date__range': [search_query_from, search_query_to],
                 'user': None,
-                #'doctor': Doctor.objects.get(speciality=doc_speciality),
-                #'place': Place.objects.get(name=place_of_visit)
+                'date__range': [search_query_from, search_query_to],
+                #'doctor': Doctor.objects.filter(pk__in=doctors_list),
+                #'doctor': Doctor.objects.filter(speciality=doc_speciality).all(),
+                #'doctor': Doctor.objects.filter(pk__in=doctors_list),
+                'place': Place.objects.get(name=place_of_visit)
             }
+            #filtering appointments that meet the query_filter requirements
             appts = Appointment.objects.filter(**query_filter).order_by('date')
 
+            #building context to be rendered on the webpage
             context['search_query_from'] = search_query_from
             context['search_query_to'] = search_query_to
+            context['speciality'] = doc_spec
             context['appointments'] = appts
         else:
             context['error_message'] = 'Error!'

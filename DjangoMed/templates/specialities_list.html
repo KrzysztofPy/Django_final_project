@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title  %} List specialities {% endblock %}
+{% block content  %} List of all specialities that are available in djangoMED:
+    <br>
+    <ul>
+    {% for speciality in specialities %}
+        <li>
+            Name: {{ speciality }}, </br>
+            Description: {{ speciality.description }},</br>
+            Doctors:
+            <ul>
+                {% for doctor in speciality.doctor_set.all %}
+                    <li>{{ doctor }}
+
+                {% empty %}
+                    No doctors available
+                    </li>
+                {% endfor %} </br>
+            </ul>
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock %}

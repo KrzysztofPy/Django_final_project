@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title  %} List doctors {% endblock %}
+{% block content  %} List of all doctors in DjangoMed:
+    <ul>
+    {% for doctor in doctors %}
+        <li>
+            Name: {{ doctor.name }},
+            Surname: {{ doctor.surname }},
+            Specialities:
+            {% for speciality in doctor.speciality.all  %}
+                {{ speciality }},
+            {% endfor %}
+
+            places:
+            {% for place in doctor.places.all %}
+                {{ place }},
+            {% endfor %}
+
+
+
+            {% if doctor.rating is not None %}
+                rating: {{ doctor.rating }}
+            {% else %}
+                rating: Not rated
+            {% endif %}
+
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock %}
