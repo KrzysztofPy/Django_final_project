@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
 from appointment_app.models import Patient, Appointment, Doctor, Place, PhysicianSpeciality #Room
-
+from rotation.models import Rotation
 
 #register models
 admin.site.register(Patient)
@@ -13,6 +13,7 @@ admin.site.register(Doctor)
 admin.site.register(PhysicianSpeciality)
 admin.site.register(Place)
 #admin.site.register(Room)
+admin.site.register(Rotation)
 
 
 # Define an inline admin descriptor for Patient model

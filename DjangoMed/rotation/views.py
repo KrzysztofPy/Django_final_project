@@ -12,9 +12,11 @@ from django.contrib.auth.mixins import (
 
 from django.db import IntegrityError
 
-
 from rotation.models import Rotation
-from appointment_app.models import Appointment, Patient
+from appointment_app.models import Appointment, Patient, PHYSICIAN_SPECIALITIES, Place, PhysicianSpeciality
+
+from appointment_app.forms import ALL_PLACES
+from rotation.forms import RotationSearchForm
 
 
 class HomeView(LoginRequiredMixin, View):
@@ -23,7 +25,7 @@ class HomeView(LoginRequiredMixin, View):
         rotation_appts_list = []
         for rappts in rotation_appts:
             rotation_appts_list.append(rappts.appointment_2rotate_id)
-        booked_appts = Appointment.objects.filter(user=request.user.pk).exclude(pk__in=rotation_appts_list)
+        booked_appts = Appointment.objects.filter(user=request.user.pk).exclude(pk__in=rotation_appts_list).order_by('date')
 
         return render(request, "rotation/list_appts_2rotate.html", {"bappts": booked_appts,
                                                                     "rappts": rotation_appts
@@ -54,3 +56,51 @@ class HomeView(LoginRequiredMixin, View):
         #if form.is_valid():
 
         return HttpResponse("ups")
+
+
+class RotationSearchView(View):
+    def get(self, request, appointment_2rotate_id):
+        appt_2rotate = Appointment.objects.get(pk=appointment_2rotate_id)
+        form = RotationSearchForm()
+        return render(request, "rotation/rotation_search.html", {"appt_2rotate": appt_2rotate,
+                                                                 "form": form})
+
+    def post(self, request):
+        form = AppSearchForm(request.POST)
+        context = {}
+        if form.is_valid():
+            search_query_from = form.cleaned_data['date_from']
+            search_query_to = form.cleaned_data['date_to']
+            doc_speciality = PHYSICIAN_SPECIALITIES[int(form.cleaned_data['doctor_speciality'])][0]
+            place_of_visit = ALL_PLACES[int(form.cleaned_data['place'])][1]
+            doc_spec = PhysicianSpeciality.objects.get(specialities=doc_speciality)
+
+            # searching for the visit of the given parameters: free, date, place
+            query_filter = {
+                'user2': None,
+                'date__range': [search_query_from, search_query_to],
+                # 'doctor': Doctor.objects.filter(pk__in=doctors_list),
+                # 'doctor': Doctor.objects.filter(speciality=doc_speciality).all(),
+                # 'doctor': Doctor.objects.filter(pk__in=doctors_list),
+                'place': Place.objects.get(name=place_of_visit)
+            }
+            # filtering appointments that meet the query_filter requirements
+            appts = Appointment.objects.filter(**query_filter).order_by('date')
+            pk_list = [] #list of all appontments that meet the search_query
+            for appt in appts:
+                pk_list.append(appt.pk)
+            appts_av_2swap = Rotation.objects.filter(appointment_2rotate_id__in=pk_list).order_by('date') # appointments that meet the criteria of search_query that are also in the Rotation table (available to be swapped)
+            # building context to be rendered on the webpage
+            context['search_query_from'] = search_query_from
+            context['search_query_to'] = search_query_to
+            context['speciality'] = doc_spec
+            context['appointments'] = appts
+        else:
+            context['error_message'] = 'Error!'
+        return render(request, 'search_free_appts.html', context)
+
+
+    """        #appts_2swap = Rotation.objects.all().except(appointment_2rotate_id=appointment_2rotate_id)
+        """
+
+
