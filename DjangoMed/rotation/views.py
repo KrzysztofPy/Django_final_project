@@ -65,19 +65,19 @@ class RotationSearchView(View):
         return render(request, "rotation/rotation_search.html", {"appt_2rotate": appt_2rotate,
                                                                  "form": form})
 
-    def post(self, request):
-        form = AppSearchForm(request.POST)
+    def post(self, request, appointment_2rotate_id):
+        form = RotationSearchForm(request.POST)
         context = {}
         if form.is_valid():
             search_query_from = form.cleaned_data['date_from']
             search_query_to = form.cleaned_data['date_to']
-            doc_speciality = PHYSICIAN_SPECIALITIES[int(form.cleaned_data['doctor_speciality'])][0]
             place_of_visit = ALL_PLACES[int(form.cleaned_data['place'])][1]
-            doc_spec = PhysicianSpeciality.objects.get(specialities=doc_speciality)
 
+            doc_speciality = PHYSICIAN_SPECIALITIES[int(form.cleaned_data['doctor_speciality'])][0]
+            booked_appt = Appointment.objects.get(id=appointment_2rotate_id)
+            doc_speciality = booked_appt.doctor.speciality
             # searching for the visit of the given parameters: free, date, place
             query_filter = {
-                'user2': None,
                 'date__range': [search_query_from, search_query_to],
                 # 'doctor': Doctor.objects.filter(pk__in=doctors_list),
                 # 'doctor': Doctor.objects.filter(speciality=doc_speciality).all(),
@@ -85,19 +85,25 @@ class RotationSearchView(View):
                 'place': Place.objects.get(name=place_of_visit)
             }
             # filtering appointments that meet the query_filter requirements
-            appts = Appointment.objects.filter(**query_filter).order_by('date')
+            appts_av_2swap = Rotation.objects.filter(user2=None)
             pk_list = [] #list of all appontments that meet the search_query
-            for appt in appts:
-                pk_list.append(appt.pk)
-            appts_av_2swap = Rotation.objects.filter(appointment_2rotate_id__in=pk_list).order_by('date') # appointments that meet the criteria of search_query that are also in the Rotation table (available to be swapped)
+            for appt in appts_av_2swap:
+                if appt.appointment_2rotate_id == appointment_2rotate_id:
+                    pass
+                else:
+                    pk_list.append(appt.appointment_2rotate_id)
+            print(pk_list)
+            appts_2swap = Appointment.objects.filter(pk__in=pk_list).\
+                filter(**query_filter).\
+                order_by('date') # appointments that meet the criteria of search_query that are also in the Rotation table (available to be swapped)
+            #appts = Appointment.objects.filter(**query_filter).order_by('date')
             # building context to be rendered on the webpage
             context['search_query_from'] = search_query_from
             context['search_query_to'] = search_query_to
-            context['speciality'] = doc_spec
-            context['appointments'] = appts
+            context['appointments_2swap'] = appts_2swap
         else:
             context['error_message'] = 'Error!'
-        return render(request, 'search_free_appts.html', context)
+        return render(request, 'rotation/rotations_found.html', context)
 
 
     """        #appts_2swap = Rotation.objects.all().except(appointment_2rotate_id=appointment_2rotate_id)
