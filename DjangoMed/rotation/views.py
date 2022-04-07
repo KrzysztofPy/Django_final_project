@@ -68,14 +68,13 @@ class RotationSearchView(View):
     def post(self, request, appointment_2rotate_id):
         form = RotationSearchForm(request.POST)
         context = {}
+        booked_appt = Appointment.objects.get(id=appointment_2rotate_id)
+        doc_speciality = booked_appt.doctor.speciality.all()
+
         if form.is_valid():
             search_query_from = form.cleaned_data['date_from']
             search_query_to = form.cleaned_data['date_to']
             place_of_visit = ALL_PLACES[int(form.cleaned_data['place'])][1]
-
-           # doc_speciality = PHYSICIAN_SPECIALITIES[int(form.cleaned_data['doctor_speciality'])][0]
-            booked_appt = Appointment.objects.get(id=appointment_2rotate_id)
-            doc_speciality = booked_appt.doctor.speciality.all()
 
             # searching for the visit of the given parameters: free, date, place
             query_filter = {
@@ -99,7 +98,7 @@ class RotationSearchView(View):
             context['appointment_booked'] = booked_appt
             context['search_query_from'] = search_query_from
             context['search_query_to'] = search_query_to
-            context['doctor_speciality'] = doc_speciality[0]
+            context['doctor_speciality'] = doc_speciality[0] # assumption that doctor's first speciality is the one that is to be searched
             context['appointments_2swap'] = appts_2swap
         else:
             context['error_message'] = 'Error!'
@@ -116,6 +115,7 @@ class RotationSearchView(View):
             if swap_visit_yes == f'swap_me_{appt_rotation_id}' and request.user.id is not None:
                 print(appt_rotation)
                 appt_rotation.user2_id = request.user.id
+                appt_rotation.user2_appt = Appointment.objects.get(pk=booked_appt.id)
                 appt_rotation.save()
                 messages.success(request, "Appointment sent to swap")
                 return redirect("rotation:rotation_page")
@@ -126,7 +126,53 @@ class RotationSearchView(View):
 class RotationSwapView(View):
     def get(self, request):
         rotation_own = Rotation.objects.filter(user1=request.user.pk)
-        rotation_else = Rotation.objects.filter(user2__isnull=False).filter(user1_agree=False)
+        rotation_own_asked4swap = Rotation.objects.filter(user2=request.user.pk)
+        rotation_else = Rotation.objects.filter(user2__isnull=False).filter(user1_agree=False).filter(user1=request.user.pk)
         return render(request, "rotation/swap_list.html", {"rotation_own": rotation_own,
+                                                           "rotation_own_asked4swap": rotation_own_asked4swap,
                                                            "rotation_else": rotation_else})
 
+    def post(self, request):
+        #if the user that posted his/her appointment for swap APPROVES the swap by puchion APPROVE button that has value "SWAP"
+        SWAP = request.POST.get('swap')
+        if SWAP is not None:
+            #getting data from HTML form
+            appt_from = request.POST.get('from')
+            appt_to = request.POST.get('to')
+
+            #appointments that is going to change user
+            appt_from_change = Appointment.objects.get(pk=appt_from)
+            appt_from_change_user = appt_from_change.user
+
+            appt_to_change = Appointment.objects.get(pk=appt_to)
+            appt_to_change_user = appt_to_change.user
+
+            #changing users of two appointments in the Appointment table in the db
+            appt_from_change.user = appt_to_change_user
+            appt_to_change.user = appt_from_change_user
+
+            appt_from_change.save()
+            appt_to_change.save()
+
+            #removing two row in the Rotation table
+            Rotation.objects.get(appointment_2rotate=appt_from).delete()
+            Rotation.objects.get(appointment_2rotate=appt_to).delete()
+
+            print(f"appt_from: {appt_from}")
+            print(f"appt_to: {appt_to}")
+            return HttpResponse(f"appt_from: {appt_from}, appt_to: {appt_to}")
+        return HttpResponse("ehh")
+
+        """
+            appt_rotation_id = int(swap_visit_yes[8:])
+            appt_rotation = Rotation.objects.get(appointment_2rotate_id=appt_rotation_id)
+
+            # if the user is logged in and pushed the button ask to swap then database change
+            if swap_visit_yes == f'swap_me_{appt_rotation_id}' and request.user.id is not None:
+                print(appt_rotation)
+                appt_rotation.user2_id = request.user.id
+                appt_rotation.user2_appt = Appointment.objects.get(pk=booked_appt.id)
+                appt_rotation.save()
+                messages.success(request, "Appointment sent to swap")
+                return redirect("rotation:rotation_page")
+        """

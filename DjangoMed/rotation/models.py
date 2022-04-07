@@ -8,6 +8,7 @@ class Rotation(models.Model):
     appointment_2rotate = models.OneToOneField(Appointment, on_delete=models.CASCADE, blank=True, null=True)
     user1 = models.OneToOneField(Patient, related_name="user1", on_delete=models.CASCADE, blank=True, null=True)
     user2 = models.OneToOneField(Patient, related_name="user2", on_delete=models.CASCADE, blank=True, null=True)
+    user2_appt = models.OneToOneField(Appointment, related_name="user2_appt", on_delete=models.CASCADE, blank=True, null=True)
     user1_agree = models.BooleanField(default=False)
 
     def __str__(self):

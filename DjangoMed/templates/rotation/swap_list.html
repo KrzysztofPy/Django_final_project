@@ -7,54 +7,50 @@
     List of appointments you posted for swap:
     <ul>
         {% for appt in rotation_own %}
-            {{ appt }}
+            {{ appt }},                                             <br>
+            {{ appt.appointment_2rotate.doctor }},
+            {{ appt.appointment_2rotate.doctor.speciality.all.0 }}, <br>
+            place: {{ appt.appointment_2rotate.place }}, <br>
+            appointment id: {{ appt.appointment_2rotate.id }}
         {% endfor %}
     </ul>
     <br>
-    List of appointments pending approval for rotation:
+
+    {% if rotation_own_asked4swap %}
+        List of appointments you asked to swap with:
     <ul>
-        {% for appt in rotation_else %}
-            {{ appt }}
+        {% for appt in rotation_own_asked4swap %}
+            {{ appt }},                                             <br>
+            {{ appt.appointment_2rotate.doctor }},
+            {{ appt.appointment_2rotate.doctor.speciality.all.0 }}, <br>
+            place: {{ appt.appointment_2rotate.place }}, <br>
+            appointment id: {{ appt.appointment_2rotate.id }}
         {% endfor %}
     </ul>
+    <br>
+    {% endif %}
+
+    {% if rotation_else %}
+        List of appointments pending approval for rotation (someone wants to swap with you on):
+        <ul>
+            {% for appt in rotation_else %}
+                <li>
+                <form action="" method="post">
+                    <bald>FROM:</bald> {{ appt.appointment_2rotate }} <br>
+                    <bald>TO:</bald> {{ appt.user2_appt }} <br>
+                    {{ appt.user2_appt.doctor }},
+                    {{ appt.user2_appt.doctor.speciality.all.0 }}, <br>
+                    place: {{ appt.user2_appt.place }}, <br>
+                    appointment id: {{ appt.user2_appt.id }} <br>
+                    <input type="hidden" name="from" value="{{ appt.appointment_2rotate.id }}">
+                    <input type="hidden" name="to" value="{{ appt.user2_appt.id }}">
+                    <button type="submit" name="swap" value="SWAP">APPROVE</button>
+
+                    {% csrf_token %}
+                </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
 {% endblock %}
-
-
-<form action="" method="post">
-        List of your appointments that you posted for swap:
-        <ul>
-        {% for appointment in bappts %}
-            <li>
-                Date: {{ appointment.date }}, time: {{ appointment.time }}, duration: {{ appointment.duration }},
-                Physician: {{ appointment.doctor }},
-                {% for speciality in appointment.doctor.speciality.all %}
-                    {{ speciality }}
-                {% endfor %}
-                <a href="{% url 'appointment_app:details_appointment' appointment.id %}">details</a>
-                <button type="submit" name="swap" value="swap_me_{{ appointment.id }}">Swap</button>
-            </li>
-            {% empty %}
-                You have no booked appointments available to swap.
-        {% endfor %}
-        </ul>
-
-        List of appointments that requires your approval for swap:
-        <ul>
-        {% for rotation in rappts %}
-            <li>
-                Date: {{ rotation.appointment_2rotate.date }}, time: {{ rotation.appointment_2rotate.time }}, duration: {{ rotation.appointment_2rotate.duration }},
-                Physician: {{ rotation.appointment_2rotate.doctor }},
-                {% for speciality in rotation.appointment_2rotate.doctor.speciality.all %}
-                    {{ speciality }}
-                {% endfor %}
-                <a href="{% url 'appointment_app:details_appointment' rotation.appointment_2rotate.id %}">details</a>
-                <button type="submit" name="demote" value="demote_me_{{ rotation.appointment_2rotate_id }}">Demote swap</button>
-            </li>
-            <a href="{% url 'rotation:rotation_search' rotation.appointment_2rotate_id %}">SEARCH SWAP</a>
-            {% empty %}
-                You have no appointments that you wanted to swap.
-        {% endfor %}
-        </ul>
-
-        {% csrf_token %}
-     </form>
