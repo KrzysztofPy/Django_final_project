@@ -133,9 +133,12 @@ class AppDetailsView(View):
         book_visit_yes = request.POST.get('book_yes')
         search_again = request.POST.get('search_new')
         cancel_visit = request.POST.get('cancel')
+
+        appt = Appointment.objects.get(pk=appointment_id)
+        booked_user = appt.user_id
+
         #if the user is logged in and pushed the button to book visit then database change
-        if book_visit_yes == 'book_me' and request.user.id is not None:
-            appt = Appointment.objects.get(pk=appointment_id)
+        if book_visit_yes == 'book_me' and request.user.id is not None and booked_user is None:
             appt.user_id = request.user.id
             appt.save()
             messages.success(request, "Appointment booked")
@@ -149,9 +152,8 @@ class AppDetailsView(View):
             return redirect("appointment_app:search_appointments")
         #if the user pushes cancel buttun then the appointment record changes its column user_id to None
         elif cancel_visit == 'cancel_me':
-            appt_to_cancel = Appointment.objects.get(pk=appointment_id)
-            appt_to_cancel.user_id = None
-            appt_to_cancel.save()
+            appt.user_id = None
+            appt.save()
             messages.success(request, "Appointment cancelled")
             return redirect("appointment_app:booked_appointments")
         else:

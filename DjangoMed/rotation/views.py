@@ -13,7 +13,7 @@ from django.contrib.auth.mixins import (
 from django.db import IntegrityError
 
 from rotation.models import Rotation
-from appointment_app.models import Appointment, Patient, PHYSICIAN_SPECIALITIES, Place, PhysicianSpeciality
+from appointment_app.models import Appointment, Patient, Doctor, PHYSICIAN_SPECIALITIES, Place, PhysicianSpeciality
 
 from appointment_app.forms import ALL_PLACES
 from rotation.forms import RotationSearchForm
@@ -73,40 +73,60 @@ class RotationSearchView(View):
             search_query_to = form.cleaned_data['date_to']
             place_of_visit = ALL_PLACES[int(form.cleaned_data['place'])][1]
 
-            doc_speciality = PHYSICIAN_SPECIALITIES[int(form.cleaned_data['doctor_speciality'])][0]
+           # doc_speciality = PHYSICIAN_SPECIALITIES[int(form.cleaned_data['doctor_speciality'])][0]
             booked_appt = Appointment.objects.get(id=appointment_2rotate_id)
-            doc_speciality = booked_appt.doctor.speciality
+            doc_speciality = booked_appt.doctor.speciality.all()
+
             # searching for the visit of the given parameters: free, date, place
             query_filter = {
-                'date__range': [search_query_from, search_query_to],
-                # 'doctor': Doctor.objects.filter(pk__in=doctors_list),
-                # 'doctor': Doctor.objects.filter(speciality=doc_speciality).all(),
-                # 'doctor': Doctor.objects.filter(pk__in=doctors_list),
-                'place': Place.objects.get(name=place_of_visit)
+                'date__range': [search_query_from, search_query_to],    # date can be searched for swap
+                'place': Place.objects.get(name=place_of_visit)         # place can be changed for swap
             }
+
             # filtering appointments that meet the query_filter requirements
             appts_av_2swap = Rotation.objects.filter(user2=None)
-            pk_list = [] #list of all appontments that meet the search_query
+            pk_list = [] #list of all appontments that meet the search_query except the one that the current user wants to swap
             for appt in appts_av_2swap:
-                if appt.appointment_2rotate_id == appointment_2rotate_id:
+                if appt.appointment_2rotate_id == appointment_2rotate_id: #appointment that current user wants to swap
                     pass
                 else:
-                    pk_list.append(appt.appointment_2rotate_id)
-            print(pk_list)
+                    pk_list.append(appt.appointment_2rotate_id) # other appointments that meet the search query_filter
+
             appts_2swap = Appointment.objects.filter(pk__in=pk_list).\
-                filter(**query_filter).\
-                order_by('date') # appointments that meet the criteria of search_query that are also in the Rotation table (available to be swapped)
-            #appts = Appointment.objects.filter(**query_filter).order_by('date')
+                filter(**query_filter).order_by('date') # appointments that meet the criteria of search_query that are also in the Rotation table (available to be swapped)
+
             # building context to be rendered on the webpage
+            context['appointment_booked'] = booked_appt
             context['search_query_from'] = search_query_from
             context['search_query_to'] = search_query_to
+            context['doctor_speciality'] = doc_speciality[0]
             context['appointments_2swap'] = appts_2swap
         else:
             context['error_message'] = 'Error!'
+
+        #the following code is for adding user2_id into Rotation table at the given appointment
+        #appt_rotation - appointment that is in the Rotation table - other user posted for swap
+        #appt_swap - appointment to swap with - current user asking to swap
+        swap_visit_yes = request.POST.get('swap')
+        if swap_visit_yes is not None:
+            appt_rotation_id = int(swap_visit_yes[8:])
+            appt_rotation = Rotation.objects.get(appointment_2rotate_id=appt_rotation_id)
+
+            # if the user is logged in and pushed the button ask to swap then database change
+            if swap_visit_yes == f'swap_me_{appt_rotation_id}' and request.user.id is not None:
+                print(appt_rotation)
+                appt_rotation.user2_id = request.user.id
+                appt_rotation.save()
+                messages.success(request, "Appointment sent to swap")
+                return redirect("rotation:rotation_page")
+
         return render(request, 'rotation/rotations_found.html', context)
 
 
-    """        #appts_2swap = Rotation.objects.all().except(appointment_2rotate_id=appointment_2rotate_id)
-        """
-
+class RotationSwapView(View):
+    def get(self, request):
+        rotation_own = Rotation.objects.filter(user1=request.user.pk)
+        rotation_else = Rotation.objects.filter(user2__isnull=False).filter(user1_agree=False)
+        return render(request, "rotation/swap_list.html", {"rotation_own": rotation_own,
+                                                           "rotation_else": rotation_else})
 

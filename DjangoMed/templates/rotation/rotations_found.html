@@ -4,21 +4,34 @@
 {% block content  %}
      {% include "./../message.html" %} </br>
      <form action="" method="post">
-        List of your appointments that you can swap with:
+         You want to put the following appointment to SWAP: <br>
+         Date: {{ appointment_booked.date }},               <br>
+         Time: {{ appointment_booked.time }},               <br>
+         Doctor: {{ appointment_booked.doctor }},           <br>
+        Speciality:
+         {% for speciality in appointment_booked.doctor.speciality.all %}
+            {{ speciality }},
+        {% endfor %} <br>
+         Place: {{ appointment_booked.place }} <br> <br>
+
+         List of your appointments that you can swap with:
         <ul>
-        {% for appointment in appointments_2swap %}
-            <li>
-                Date: {{ appointment.date }}, time: {{ appointment.time }}, duration: {{ appointment.duration }},
-                Physician: {{ appointment.doctor }},
-                {% for speciality in appointment.doctor.speciality.all %}
-                    {{ speciality }}
-                {% endfor %}
-                <a href="{% url 'appointment_app:details_appointment' appointment.id %}">details</a>
-                <button type="submit" name="swap" value="swap_me_{{ appointment.id }}">Swap</button>
-            </li>
-            {% empty %}
-                You have no booked appointments.
-        {% endfor %}
+            {% for appointment in appointments_2swap %}
+                {% if doctor_speciality in appointment.doctor.speciality.all %}
+                    <li>
+                        Date: {{ appointment.date }}, time: {{ appointment.time }}, duration: {{ appointment.duration }},
+                        Physician: {{ appointment.doctor }},
+                        {% for speciality in appointment.doctor.speciality.all %}
+                            {{ speciality }}
+                        {% endfor %}
+                        <a href="{% url 'appointment_app:details_appointment' appointment.id %}">details</a>
+                        <button type="submit" name="swap" value="swap_me_{{ appointment.id }}">Ask to Swap</button>
+                        <p>Appointment_id = {{ appointment.id }} </p>
+                    </li>
+                    {% endif %}
+                {% empty %}
+                    There are no appointments that meets your criteria of swap.
+            {% endfor %}
         </ul>
 
         List of appointments you wanted to swap:

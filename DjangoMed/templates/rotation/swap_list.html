@@ -1,10 +1,27 @@
 {% extends 'base.html' %}
 
-{% block title  %} ROTATION {% endblock %}
+{% block title  %} SWAP {% endblock %}
 {% block content  %}
-     {% include "./../message.html" %} </br>
-     <form action="" method="post">
-        List of your appointments that can be swapped:
+     {% include "./../message.html" %} <br>
+
+    List of appointments you posted for swap:
+    <ul>
+        {% for appt in rotation_own %}
+            {{ appt }}
+        {% endfor %}
+    </ul>
+    <br>
+    List of appointments pending approval for rotation:
+    <ul>
+        {% for appt in rotation_else %}
+            {{ appt }}
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+
+<form action="" method="post">
+        List of your appointments that you posted for swap:
         <ul>
         {% for appointment in bappts %}
             <li>
@@ -21,7 +38,7 @@
         {% endfor %}
         </ul>
 
-        List of appointments you wanted to swap:
+        List of appointments that requires your approval for swap:
         <ul>
         {% for rotation in rappts %}
             <li>
@@ -41,10 +58,3 @@
 
         {% csrf_token %}
      </form>
-
-    <a href="swap/">Show all visits for SWAP</a> </br>
-
-    List of appointments pending approval for rotation:
-
-
-{% endblock %}
