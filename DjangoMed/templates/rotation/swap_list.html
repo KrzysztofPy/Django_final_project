@@ -45,7 +45,7 @@
                     <input type="hidden" name="from" value="{{ appt.appointment_2rotate.id }}">
                     <input type="hidden" name="to" value="{{ appt.user2_appt.id }}">
                     <button type="submit" name="swap" value="SWAP">APPROVE</button>
-
+                    <button type="submit" name="swap" value="SWAP_reject">REJECT</button>
                     {% csrf_token %}
                 </form>
                 </li>

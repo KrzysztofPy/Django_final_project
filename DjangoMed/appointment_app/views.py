@@ -3,7 +3,8 @@ from django.views.generic import View
 
 from django.contrib import messages
 
-from appointment_app.models import Patient, Doctor, PhysicianSpeciality, Place, Appointment, PHYSICIAN_SPECIALITIES, RATE, PLACES
+from rotation.models import Rotation
+from appointment_app.models import Patient, Doctor, PhysicianSpeciality, Place, Appointment, PHYSICIAN_SPECIALITIES, RATE, PLACES, User
 from appointment_app.forms import AppSearchForm, AppAddForm, ALL_PLACES, HOURS, MINUTES
 
 import datetime
@@ -70,9 +71,11 @@ class AppBookedListView(LoginRequiredMixin, View):
 
     def get(self, request):
         booked_appts = Appointment.objects.filter(user=request.user.pk)
+
         return render(request, 'list_booked_appts.html', {'bappts': booked_appts})
 
 
+#search free appointments in the database
 class AppSearchView(View):
     def get(self, request):
         form = AppSearchForm()
@@ -136,6 +139,7 @@ class AppDetailsView(View):
 
         appt = Appointment.objects.get(pk=appointment_id)
         booked_user = appt.user_id
+        #booked_user = appt.user
 
         #if the user is logged in and pushed the button to book visit then database change
         if book_visit_yes == 'book_me' and request.user.id is not None and booked_user is None:
@@ -154,8 +158,17 @@ class AppDetailsView(View):
         elif cancel_visit == 'cancel_me':
             appt.user_id = None
             appt.save()
-            messages.success(request, "Appointment cancelled")
+            try:
+                rotation = Rotation.objects.get(appointment_2rotate__pk=appt.pk)
+
+            except Rotation.DoesNotExist:
+                pass
+            else:
+                rotation.delete()
+                messages.success(request, "Appointment cancelled")
+
             return redirect("appointment_app:booked_appointments")
+
         else:
             return HttpResponse(f'Error occurred!')
 

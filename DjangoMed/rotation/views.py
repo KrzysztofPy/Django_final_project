@@ -135,7 +135,7 @@ class RotationSwapView(View):
     def post(self, request):
         #if the user that posted his/her appointment for swap APPROVES the swap by puchion APPROVE button that has value "SWAP"
         SWAP = request.POST.get('swap')
-        if SWAP is not None:
+        if SWAP == "SWAP":#is not None:
             #getting data from HTML form
             appt_from = request.POST.get('from')
             appt_to = request.POST.get('to')
@@ -160,7 +160,17 @@ class RotationSwapView(View):
 
             print(f"appt_from: {appt_from}")
             print(f"appt_to: {appt_to}")
-            return HttpResponse(f"appt_from: {appt_from}, appt_to: {appt_to}")
+            return redirect("appointment_app:booked_appointments") #HttpResponse(f"appt_from: {appt_from}, appt_to: {appt_to}")
+        elif SWAP == "SWAP_reject":
+            # getting data from HTML form
+            appt_from = request.POST.get('from')
+
+            # appointments that is going to be rejected by the current owner of the appointment
+            appt_change = Rotation.objects.get(appointment_2rotate=appt_from)#Appointment.objects.get(pk=appt_from)
+            appt_change.user2_id = None
+            appt_change.user2_appt_id = None
+            appt_change.save()
+            return redirect("rotation:home")
         return HttpResponse("ehh")
 
         """

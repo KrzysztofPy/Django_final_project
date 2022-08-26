@@ -53,23 +53,22 @@
 
 
 
-
-        List of appointments you can swap with:
-        <ul>
-        {% for rotation in rappts %}
-            <li>
-                Date: {{ rotation.appointment_2rotate.date }}, time: {{ rotation.appointment_2rotate.time }}, duration: {{ rotation.appointment_2rotate.duration }},
-                Physician: {{ rotation.appointment_2rotate.doctor }},
-                {% for speciality in rotation.appointment_2rotate.doctor.speciality.all %}
-                    {{ speciality }}
-                {% endfor %}
-                <a href="{% url 'appointment_app:details_appointment' rotation.appointment_2rotate.id %}">details</a>
-                <button type="submit" name="demote" value="demote_me_{{ rotation.appointment_2rotate_id }}">Demote swap</button>
-            </li>
-
-
-        {% endfor %}
-        </ul>
+        {% if search_query_from %}
+            List of appointments you can swap with:
+            <ul>
+            {% for rotation in rappts %}
+                <li>
+                    Date: {{ rotation.appointment_2rotate.date }}, time: {{ rotation.appointment_2rotate.time }}, duration: {{ rotation.appointment_2rotate.duration }},
+                    Physician: {{ rotation.appointment_2rotate.doctor }},
+                    {% for speciality in rotation.appointment_2rotate.doctor.speciality.all %}
+                        {{ speciality }}
+                    {% endfor %}
+                    <a href="{% url 'appointment_app:details_appointment' rotation.appointment_2rotate.id %}">details</a>
+                    <button type="submit" name="demote" value="demote_me_{{ rotation.appointment_2rotate_id }}">Demote swap</button>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
 
         {% csrf_token %}
      </form>

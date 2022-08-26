@@ -3,12 +3,13 @@
 {% block title  %} List appointments {% endblock %}
 {% block content  %} Details of appointment:
     <form action="{% url 'appointment_app:details_appointment' appt_detail.id %}" method="post">
-        Date: {{ appt_detail.date }}, </br>
-        time: {{ appt_detail.time }}, </br>
-        duration: {{ appt_detail.duration }}, </br>
-        physician: {{ appt_detail.doctor }}, </br>
-        physician rating: {{ appt_detail.doctor.get_rating }}, </br>
-        place: {{ appt_detail.place }} </br>
+        Date: {{ appt_detail.date }}, <br>
+        time: {{ appt_detail.time }}, <br>
+        duration: {{ appt_detail.duration }}, <br>
+        speciality: {{ appt_detail.doctor.speciality.all.0 }}, <br>
+        physician: {{ appt_detail.doctor }}, <br>
+        physician rating: {{ appt_detail.doctor.get_rating }}, <br>
+        place: {{ appt_detail.place }} <br>
         room: {{ appt_detail.place.room_name }} <br>
 
         {% if appt_detail.user_id == request.user.id and request.user.id != None %}

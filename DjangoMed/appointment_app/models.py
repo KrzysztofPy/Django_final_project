@@ -8,7 +8,7 @@ class Patient(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.number)
+        return str(self.user_id)
 
 """
 ROOM_NAMES = (
