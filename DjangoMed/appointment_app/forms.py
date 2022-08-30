@@ -46,6 +46,7 @@ ALL_DOCTORS = get_doctors(Doctor)
 
 
 def get_doctors_specialities(doctors_model):
+    all_doctors = doctors_model.objects.all()
     all_specialities = doctors_model.objects.all()
     ALL_DOCTORS_SPECIALITIES = [(0, "---")]
     for speciality in all_specialities:

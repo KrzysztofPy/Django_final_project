@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title  %} ROTATION {% endblock %}
+{% block content  %}
+     {% include "./../message.html" %} </br>
+     <form action="" method="post">
+        Appointments that you want to swap:
+         Date: {{ appt_2rotate.date }}, time: {{ appt_2rotate.time }}, duration: {{ appt_2rotate.duration }},
+         Physician: {{ appt_2rotate.doctor }},
+         {% for speciality in appt_2rotate.doctor.speciality.all %}
+            {{ speciality }}
+         {% endfor %}
+         <a href="{% url 'appointment_app:details_appointment' appt_2rotate.id %}">details</a>
+         <button type="submit" name="swap" value="swap_me_{{ appointment.id }}">Swap</button>
+
+        <br><br>
+
+        {% if not search_query_from %}
+            Search all appointments that are available for swap:
+            <form action="" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="search">
+            </form>
+        {% endif %}
+
+
+
+     {% if search_query_from and search_query_to %}
+        You were looking for appointments from: {{ search_query_from }}, to: {{ search_query_to }}
+         <p>List of appointments you can swap with:</p>
+            {% for appointment in appointments %}
+                <p>
+                {% for doc_speciality in appointment.doctor.speciality.all %}
+
+                    {% if doc_speciality == speciality %}
+                        {{ appointment }},
+                        speciality: {{ speciality }},
+                        doctor: {{ appointment.doctor}},
+                        place: {{ appointment.place }}
+
+                        <a href="details/{{ appointment.id }}">details</a>
+                    {% endif %}
+
+                {% endfor %}
+                </p>
+            {% empty %}
+                <p>No available appointments found</p>
+                <a href="{% url "rotation:rotation_search" %}">Search again</a>
+            {% endfor %}
+    {% endif %}
+
+
+
+
+        {% if search_query_from %}
+            List of appointments you can swap with:
+            <ul>
+            {% for rotation in rappts %}
+                <li>
+                    Date: {{ rotation.appointment_2rotate.date }}, time: {{ rotation.appointment_2rotate.time }}, duration: {{ rotation.appointment_2rotate.duration }},
+                    Physician: {{ rotation.appointment_2rotate.doctor }},
+                    {% for speciality in rotation.appointment_2rotate.doctor.speciality.all %}
+                        {{ speciality }}
+                    {% endfor %}
+                    <a href="{% url 'appointment_app:details_appointment' rotation.appointment_2rotate.id %}">details</a>
+                    <button type="submit" name="demote" value="demote_me_{{ rotation.appointment_2rotate_id }}">Demote swap</button>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% csrf_token %}
+     </form>
+
+
+{% endblock %}

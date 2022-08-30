@@ -3,7 +3,8 @@ from django.views.generic import View
 
 from django.contrib import messages
 
-from appointment_app.models import Patient, Doctor, PhysicianSpeciality, Place, Appointment, PHYSICIAN_SPECIALITIES, RATE, PLACES
+from rotation.models import Rotation
+from appointment_app.models import Patient, Doctor, PhysicianSpeciality, Place, Appointment, PHYSICIAN_SPECIALITIES, RATE, PLACES, User
 from appointment_app.forms import AppSearchForm, AppAddForm, ALL_PLACES, HOURS, MINUTES
 
 import datetime
@@ -70,9 +71,11 @@ class AppBookedListView(LoginRequiredMixin, View):
 
     def get(self, request):
         booked_appts = Appointment.objects.filter(user=request.user.pk)
+
         return render(request, 'list_booked_appts.html', {'bappts': booked_appts})
 
 
+#search free appointments in the database
 class AppSearchView(View):
     def get(self, request):
         form = AppSearchForm()
@@ -80,7 +83,6 @@ class AppSearchView(View):
 
     def post(self, request):
         form = AppSearchForm(request.POST)
-        #doctors = Doctor.objects.all()
         context = {}
         if form.is_valid():
             search_query_from = form.cleaned_data['date_from']
@@ -134,9 +136,13 @@ class AppDetailsView(View):
         book_visit_yes = request.POST.get('book_yes')
         search_again = request.POST.get('search_new')
         cancel_visit = request.POST.get('cancel')
+
+        appt = Appointment.objects.get(pk=appointment_id)
+        booked_user = appt.user_id
+        #booked_user = appt.user
+
         #if the user is logged in and pushed the button to book visit then database change
-        if book_visit_yes == 'book_me' and request.user.id is not None:
-            appt = Appointment.objects.get(pk=appointment_id)
+        if book_visit_yes == 'book_me' and request.user.id is not None and booked_user is None:
             appt.user_id = request.user.id
             appt.save()
             messages.success(request, "Appointment booked")
@@ -150,11 +156,19 @@ class AppDetailsView(View):
             return redirect("appointment_app:search_appointments")
         #if the user pushes cancel buttun then the appointment record changes its column user_id to None
         elif cancel_visit == 'cancel_me':
-            appt_to_cancel = Appointment.objects.get(pk=appointment_id)
-            appt_to_cancel.user_id = None
-            appt_to_cancel.save()
-            messages.success(request, "Appointment cancelled")
+            appt.user_id = None
+            appt.save()
+            try:
+                rotation = Rotation.objects.get(appointment_2rotate__pk=appt.pk)
+
+            except Rotation.DoesNotExist:
+                pass
+            else:
+                rotation.delete()
+                messages.success(request, "Appointment cancelled")
+
             return redirect("appointment_app:booked_appointments")
+
         else:
             return HttpResponse(f'Error occurred!')
 

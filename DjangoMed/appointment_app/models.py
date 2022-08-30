@@ -8,7 +8,7 @@ class Patient(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.number)
+        return str(self.user_id)
 
 """
 ROOM_NAMES = (
@@ -96,7 +96,7 @@ class Doctor(models.Model):
             return f"No rating yet"
 
     def __str__(self):
-        return f"Doc. {self.name[0]} {self.surname}"
+        return f"Doc. {self.name[0]}. {self.surname}"
 
 
 """

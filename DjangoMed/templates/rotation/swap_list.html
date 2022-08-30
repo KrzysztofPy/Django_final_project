@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title  %} SWAP {% endblock %}
+{% block content  %}
+     {% include "./../message.html" %} <br>
+
+    List of appointments you posted for swap:
+    <ul>
+        {% for appt in rotation_own %}
+            {{ appt }},                                             <br>
+            {{ appt.appointment_2rotate.doctor }},
+            {{ appt.appointment_2rotate.doctor.speciality.all.0 }}, <br>
+            place: {{ appt.appointment_2rotate.place }}, <br>
+            appointment id: {{ appt.appointment_2rotate.id }}
+        {% endfor %}
+    </ul>
+    <br>
+
+    {% if rotation_own_asked4swap %}
+        List of appointments you asked to swap with:
+    <ul>
+        {% for appt in rotation_own_asked4swap %}
+            {{ appt }},                                             <br>
+            {{ appt.appointment_2rotate.doctor }},
+            {{ appt.appointment_2rotate.doctor.speciality.all.0 }}, <br>
+            place: {{ appt.appointment_2rotate.place }}, <br>
+            appointment id: {{ appt.appointment_2rotate.id }}
+        {% endfor %}
+    </ul>
+    <br>
+    {% endif %}
+
+    {% if rotation_else %}
+        List of appointments pending approval for rotation (someone wants to swap with you on):
+        <ul>
+            {% for appt in rotation_else %}
+                <li>
+                <form action="" method="post">
+                    <bald>FROM:</bald> {{ appt.appointment_2rotate }} <br>
+                    <bald>TO:</bald> {{ appt.user2_appt }} <br>
+                    {{ appt.user2_appt.doctor }},
+                    {{ appt.user2_appt.doctor.speciality.all.0 }}, <br>
+                    place: {{ appt.user2_appt.place }}, <br>
+                    appointment id: {{ appt.user2_appt.id }} <br>
+                    <input type="hidden" name="from" value="{{ appt.appointment_2rotate.id }}">
+                    <input type="hidden" name="to" value="{{ appt.user2_appt.id }}">
+                    <button type="submit" name="swap" value="SWAP">APPROVE</button>
+                    <button type="submit" name="swap" value="SWAP_reject">REJECT</button>
+                    {% csrf_token %}
+                </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+{% endblock %}
